@@ -1,16 +1,18 @@
 package com.example.libreria.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.libreria.dto.UserRequestDTO;
 import com.example.libreria.dto.UserResponseDTO;
 import com.example.libreria.model.User;
 import com.example.libreria.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,9 +32,9 @@ public class UserService {
         user.setEmail(requestDTO.getEmail());
         user.setPhoneNumber(requestDTO.getPhoneNumber());
         
-        User savedUser = userRepository.save(user);
-        log.info("Created user with id: {}", savedUser.getId());
-        return convertToDTO(savedUser);
+        User saved = userRepository.save(user);
+        log.info("Usuario creado con id: {}", saved.getId());
+        return convertToDTO(saved);
     }
     
     @Transactional(readOnly = true)
@@ -53,9 +55,9 @@ public class UserService {
     public UserResponseDTO updateUser(Long id, UserRequestDTO requestDTO) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
-        
+
         // Verificar si el email ya existe en otro usuario
-        if (!user.getEmail().equals(requestDTO.getEmail()) && 
+        if (!user.getEmail().equals(requestDTO.getEmail()) &&
             userRepository.existsByEmail(requestDTO.getEmail())) {
             throw new RuntimeException("Ya existe un usuario con el email: " + requestDTO.getEmail());
         }
@@ -64,9 +66,9 @@ public class UserService {
         user.setEmail(requestDTO.getEmail());
         user.setPhoneNumber(requestDTO.getPhoneNumber());
         
-        User updatedUser = userRepository.save(user);
-        log.info("Updated user with id: {}", updatedUser.getId());
-        return convertToDTO(updatedUser);
+        User updated = userRepository.save(user);
+        log.info("Usuario actualizado con id: {}", updated.getId());
+        return convertToDTO(updated);
     }
     
     @Transactional
@@ -75,7 +77,7 @@ public class UserService {
             throw new RuntimeException("Usuario no encontrado con ID: " + id);
         }
         userRepository.deleteById(id);
-        log.info("Deleted user with id: {}", id);
+        log.info("Usuario eliminado con id: {}", id);
     }
     
     @Transactional(readOnly = true)
